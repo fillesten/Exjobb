@@ -20,17 +20,17 @@ class ExcelManipulator:
         self.columnParam = None
         self.artikel_beskrivning_info = self.saveColumnToArray(self.ws, 2)
 
-        varuMärkenFile = "ExcelFiles/VarumärkenWL.xlsx"
-        if path.exists(varuMärkenFile):
-            wlwb = load_workbook(varuMärkenFile)
+        tradeMarkFile = "ExcelFiles/VarumärkenWL.xlsx"
+        if path.exists(tradeMarkFile):
+            wlwb = load_workbook(tradeMarkFile)
             wlws = wlwb.active
-            self.wlVaruMärken = self.saveColumnToArray(wlws, 2)
+            self.wlTradeMark = self.saveColumnToArray(wlws, 2)
 
         self.artikel_nummer_col_index = None
         self.artikel_beskrivning_col_index = None
         self.typbeteckning_col_index = None
         self.kompletterande_info_col_index = None
-        self.varumärke_col_index = None
+        self.trademark_col_index = None
         self.write_indices = []
 
     """ saves all cells Row wise"""
@@ -57,7 +57,7 @@ class ExcelManipulator:
         self.writeArtikelbeskrivning()
         self.writeTypbeteckning()
         self.writeKompletterandeInfo()
-        self.writeVarumärke()
+        self.writeTradeMark()
         self.removeDuplicates()
 
     """save a column from a specific worksheet into an array"""
@@ -79,7 +79,6 @@ class ExcelManipulator:
     """A function to get a cells value"""
     def getCellValue(self, row_idx, col_idx):
         return self.ws.cell(row=row_idx, column=col_idx).value
-
 
     "creates the output columns and also determines the columns that will be iterated through"
     def columnWork(self, columnParam):
@@ -122,8 +121,8 @@ class ExcelManipulator:
                 self.kompletterande_info_col_index = idx + 1
                 self.write_indices.append(self.kompletterande_info_col_index)
             if cell.value == "Varumärke":
-                self.varumärke_col_index = idx + 1
-                self.write_indices.append(self.varumärke_col_index)
+                self.trademark_col_index = idx + 1
+                self.write_indices.append(self.trademark_col_index)
 
     """gives a list of all active cells/columns or the indices of the input columns """
     def inputRowData(self):
@@ -155,7 +154,7 @@ class ExcelManipulator:
             for col_idx, cell_value in enumerate(cell_row, 1):
                 if col_idx in self.columnParam:  # ensures it only reads from the given columns
                     matches = re.findall(Artikelbeskrivning, str(cell_value))
-                    matches = [match for match in matches if match not in self.wlVaruMärken]
+                    matches = [match for match in matches if match not in self.wlTradeMark]
                     if matches:
                         self.setCellValue(row_idx=row_idx, col_idx=self.artikel_beskrivning_col_index, value=' '.join(matches))
 
@@ -195,14 +194,14 @@ class ExcelManipulator:
                         self.setCellValue(row_idx, self.kompletterande_info_col_index, ' '.join(matches))
 
     "denna slår emot whitelist, tar första varumärke"
-    def writeVarumärke(self):
+    def writeTradeMark(self):
         for row_idx, cell_row in enumerate(self.rowList[1:], 2):
             for col_idx, cell_value in enumerate(cell_row, 1):
                 if cell_value is not None and col_idx in self.columnParam:
                     for word in str(cell_value).split():
-                        if word in self.wlVaruMärken:
-                            if self.getCellValue(row_idx, self.varumärke_col_index) is None:
-                                self.setCellValue(row_idx, self.varumärke_col_index, word)
+                        if word in self.wlTradeMark:
+                            if self.getCellValue(row_idx, self.trademark_col_index) is None:
+                                self.setCellValue(row_idx, self.trademark_col_index, word)
 
     """Checks and removes duplicates in the Kompletterande_info column"""
     def removeDuplicates(self):
