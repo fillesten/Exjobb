@@ -157,6 +157,13 @@ class ExcelManipulator:
                     matches = [match for match in matches if match not in self.wlTradeMark]
                     if matches:
                         self.setCellValue(row_idx=row_idx, col_idx=self.artikel_beskrivning_col_index, value=' '.join(matches))
+                    """ # Replace both AG with whatever brand suffix you want to remove, for example AB, CO, AG etc 
+                    """
+                    if "AG" in str(self.getCellValue(row_idx, self.artikel_beskrivning_col_index)):
+                        clean_data = str(
+                            self.getCellValue(row_idx, self.artikel_beskrivning_col_index).replace("AG", ''))
+                        self.ws.cell(row_idx, self.artikel_beskrivning_col_index).value = ''
+                        self.setCellValue(row_idx, self.artikel_beskrivning_col_index, clean_data)
 
     """Writes to the Typbeteckning column"""
     def writeTypbeteckning(self):
